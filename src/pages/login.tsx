@@ -1,41 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
+import { Link } from "react-router-dom";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [pin, setPin] = useState("");
-  const [message, setMessage] = useState("");
+interface LoginResponse {
+  error?: string;
+}
 
-  const handleSubmit = async (e) => {
+const LoginPage: React.FC = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [pin, setPin] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
       const response = await fetch("http://localhost:5000/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, pin }),
       });
 
-      const data = await response.json();
+      const data: LoginResponse = await response.json();
 
       if (response.ok) {
         setMessage("Login successful ✅");
-        console.log("Server Response: - login.js:25", data);
       } else {
         setMessage(data.error || "Login failed ❌");
       }
     } catch (error) {
-      console.error("Error: - login.js:30", error);
       setMessage("Something went wrong. Please try again.");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white transition-all duration-700">
+    <div className="flex items-center justify-center min-h-screen bg-white">
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block mb-1 text-gray-700">Email</label>
@@ -73,12 +75,6 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="text-right">
-            <a href="#" className="text-blue-500 text-sm hover:underline">
-              Forgot PIN / Password?
-            </a>
-          </div>
-
           <button
             type="submit"
             className="w-full py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition transform hover:scale-105"
@@ -87,17 +83,17 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {message && (
-          <p className="text-center mt-4 text-sm text-gray-700">{message}</p>
-        )}
+        {message && <p className="text-center mt-4 text-sm">{message}</p>}
 
         <p className="text-center mt-6 text-sm text-gray-600">
           Don’t have an account?{" "}
-          <a href="#" className="text-blue-500 font-medium hover:underline">
+          <Link to="/signup" className="text-blue-500 font-medium hover:underline">
             Register
-          </a>
+          </Link>
         </p>
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;
